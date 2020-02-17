@@ -9,7 +9,7 @@
 #include "Tiny_SH1106.h"
 #include <Wire.h>
 #include <RtcDS3231.h>
-#include <Fonts/FreeMonoBold12pt7b.h>
+#include "LCDFont.h"
 
 class ClockTime
 {
@@ -19,12 +19,14 @@ class ClockTime
     RtcDS3231<TwoWire> *_rtc;
     uint32_t _now = 1581162788;
     bool _clockDots = false;
+    int _mode = 0;
 
   public: 
     ClockTime(Tiny_SH1106 *lcd);
     ~ClockTime();
 
     void Render();
+    void SetMode(int mode);
 };
 
 #endif

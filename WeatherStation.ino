@@ -7,6 +7,14 @@
 #include "ClockTime.h"
 #include "Button.h"
 
+#define PIN_SDA     25
+#define PIN_SCL     26
+#define PIN_LEFT    12
+#define PIN_MIDDLE  14
+#define PIN_RIGHT   27
+
+#define I2C_SPEED   1000000
+
 #define OLED_RESET 4
 Tiny_SH1106 lcd(OLED_RESET);
 
@@ -15,6 +23,7 @@ ClockTime *clockTime;
 Button *leftButton; 
 Button *middleButton; 
 Button *rightButton; 
+int mode = 0;
 
 void setup() 
 {
@@ -24,8 +33,8 @@ void setup()
   }
 
   // SDA, SCL
-  Wire.begin(25,26);
-  Wire.setClock(1000000);
+  Wire.begin(PIN_SDA, PIN_SCL);
+  Wire.setClock(I2C_SPEED);
 
   stats = new Stats(&lcd);
   
@@ -34,9 +43,9 @@ void setup()
   lcd.display();
 
   clockTime = new ClockTime(&lcd);
-  leftButton = new Button(12);
-  middleButton = new Button(14);
-  rightButton = new Button(27);
+  leftButton = new Button(PIN_LEFT);
+  middleButton = new Button(PIN_MIDDLE);
+  rightButton = new Button(PIN_RIGHT);
 }
 
 void loop() 
@@ -44,13 +53,13 @@ void loop()
   if (rightButton->Clicked())
   {
     Serial.println("Right button click");
-    stats->NextMode();
+    NextMode();
   }
 
   if (leftButton->Clicked())
   {
     Serial.println("Left button click");
-    stats->PrevMode();
+    PrevMode();
   }
 
   if (middleButton->Clicked())
@@ -60,6 +69,24 @@ void loop()
 
   clockTime->Render();
   stats->Render();
+}
 
-  delay(100);
+void NextMode()
+{
+  if (++mode > 4)
+    mode = 0;
+
+  clockTime->SetMode(mode);
+  stats->SetMode(mode);
+}
+
+void PrevMode()
+{
+  if (mode == 0)
+    mode = 1;
+  else
+    mode--;
+  
+  clockTime->SetMode(mode);
+  stats->SetMode(mode);
 }

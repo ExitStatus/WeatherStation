@@ -53,22 +53,12 @@ Stats::~Stats()
   delete _bmpSensor;
 }
 
-void Stats::NextMode()
+void Stats::SetMode(int mode)
 {
-  if (++_mode > 1)
-    _mode = 0;
-
+  _mode = mode;
   _timer->Now();
-}
 
-void Stats::PrevMode()
-{
-  if (_mode == 0)
-    _mode = 1;
-  else
-    _mode--;
-  
-  _timer->Now();
+  Render();
 }
 
 void Stats::Render()
@@ -80,7 +70,10 @@ void Stats::Render()
   _lcd->setTextSize(1);
   _lcd->setTextColor(WHITE);
   
-  _lcd->fillRect(0, 38, 128, 26, BLACK);   
+  if (_mode > 1)
+    _lcd->fillRect(0, 0, 128, 64, BLACK);   
+  else
+    _lcd->fillRect(0, 38, 128, 26, BLACK);   
 
   float temp = _AHT10->GetTemperature();
   float dew = _AHT10->GetDewPoint();
@@ -101,6 +94,9 @@ void Stats::Render()
   {
     case 0: RenderStyle0(temp, humid, dew, pressure); break;
     case 1: RenderStyle1(temp, humid, dew, pressure); break;
+    case 2: RenderStyle2(temp, humid, dew, pressure); break;
+    case 3: RenderStyle3(temp, humid, dew, pressure); break;
+    case 4: RenderStyle4(temp, humid, dew, pressure); break;
   }
 
   _lcd->display();
@@ -180,4 +176,58 @@ void Stats::RenderStyle1(float temp, float humid, float dew, float pressure)
   _lcd->setCursor(66,56);
   _lcd->print(F("Mbar:"));
   _lcd->print((int)pressure);
+}
+
+void Stats::RenderStyle2(float temp, float humid, float dew, float pressure)
+{
+  _lcd->setCursor(28,14);
+  _lcd->setTextColor(WHITE);
+  _lcd->setFont(&DSEG7_Classic_Regular_20);
+
+  char *buffer = new char[16];
+  sprintf(buffer, "%0.2f", temp);
+  _lcd->print(buffer);
+  delete buffer;
+
+  _lcd->setFont();
+  _lcd->setCursor(64 - ((18 * 6)/2) ,25);
+  _lcd->print("Degrees Centigrade");
+
+  _lcd->drawFastHLine(0, 38, 128, WHITE);
+}
+
+void Stats::RenderStyle3(float temp, float humid, float dew, float pressure)
+{
+  _lcd->setCursor(28,14);
+  _lcd->setTextColor(WHITE);
+  _lcd->setFont(&DSEG7_Classic_Regular_20);
+
+  char *buffer = new char[16];
+  sprintf(buffer, "%0.2f", humid);
+  _lcd->print(buffer);
+  delete buffer;
+
+  _lcd->setFont();
+  _lcd->setCursor(64 - ((16 * 6)/2) ,25);
+  _lcd->print("Percent Humidity");
+
+  _lcd->drawFastHLine(0, 38, 128, WHITE);
+}
+
+void Stats::RenderStyle4(float temp, float humid, float dew, float pressure)
+{
+  _lcd->setCursor(10,14);
+  _lcd->setTextColor(WHITE);
+  _lcd->setFont(&DSEG7_Classic_Regular_20);
+
+  char *buffer = new char[16];
+  sprintf(buffer, "%0.2f%", pressure);
+  _lcd->print(buffer);
+  delete buffer;
+
+  _lcd->setFont();
+  _lcd->setCursor(64 - ((18 * 6)/2) ,25);
+  _lcd->print("Millibars Pressure");
+
+  _lcd->drawFastHLine(0, 38, 128, WHITE);
 }

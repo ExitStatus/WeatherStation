@@ -3,11 +3,11 @@
 
 #include <Arduino.h>
 #include "My_BMP280.h"
-
 #include "My_AHT10.h"
 #include "Interval.h"
 #include "Tiny_SH1106.h"
 #include "Storage.h"
+#include "LCDFont.h"
 
 static const unsigned char PROGMEM degreeIcon[] = {
   B00110000,
@@ -93,13 +93,15 @@ class Stats
 
     void RenderStyle0(float temp, float humid, float dew, float pressure);
     void RenderStyle1(float temp, float humid, float dew, float pressure);
+    void RenderStyle2(float temp, float humid, float dew, float pressure);
+    void RenderStyle3(float temp, float humid, float dew, float pressure);
+    void RenderStyle4(float temp, float humid, float dew, float pressure);
+
     void printTemp(int x, int y, char *prefix, int temp);
   public: 
     Stats(Tiny_SH1106 *lcd);
     ~Stats();
-    void NextMode();
-    void PrevMode();
-
+    void SetMode(int mode);
     void Render();
 };
 

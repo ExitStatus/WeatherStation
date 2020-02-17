@@ -41,20 +41,28 @@ ClockTime::~ClockTime()
   free(_rtc);
 }
 
+void ClockTime::SetMode(int mode)
+{
+  _mode = mode;
+  _timer->Now();
+
+  Render();
+}
+
 void ClockTime::Render()
 {
   
-  if (!_timer->Ready() || !_rtc->IsDateTimeValid())
+  if (_mode > 1 || !_timer->Ready() || !_rtc->IsDateTimeValid())
       return;
 
   RtcDateTime now = _rtc->GetDateTime();
   _lcd->fillRect(0,0, 127,38, BLACK);
   
-  _lcd->setCursor(28,13);
+  _lcd->setCursor(28,14);
   _lcd->setTextSize(1);
   _lcd->setTextColor(WHITE);
 
-  _lcd->setFont(&FreeMonoBold12pt7b);
+  _lcd->setFont(&DSEG7_Classic_Regular_20);
 
   char *buffer = new char[6];
   
@@ -65,7 +73,7 @@ void ClockTime::Render()
 
   _lcd->print(buffer);
 
-  free(buffer);
+  delete buffer;
   
   _clockDots = !_clockDots;  
   
@@ -109,7 +117,7 @@ void ClockTime::Render()
 
   _lcd->setCursor(64 - ((strlen(buffer2) * 6) /2),25);
   _lcd->print(buffer2);
-  free(buffer2);
+  delete buffer2;
 
   _lcd->display();
 }
