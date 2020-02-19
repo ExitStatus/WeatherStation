@@ -1,11 +1,14 @@
 #include "Storage.h"
 
+
 Storage::Storage()
 {
     _seconds = Allocate(12);
     _minutes = Allocate(60);
     _hours = Allocate(HOURS_STORED);
     _days = Allocate(DAYS_STORED);
+
+    _logger = new CardLogger();
 
     EEPROM_Init();
     EEPROM_ReadStats();
@@ -17,6 +20,8 @@ Storage::~Storage()
     Deallocate(_minutes, 60);
     Deallocate(_hours, HOURS_STORED);
     Deallocate(_days, DAYS_STORED);
+
+    delete _logger;
 }
 
 SensorData** Storage::Allocate(int size)
@@ -92,11 +97,11 @@ void Storage::Minute()
 
     if (sum == NULL)
     {
-        Serial.println("Unabled to find any seconds data");
+        Serial.println(F("Unabled to find any seconds data"));
         return;
     }
 
-    EEPROM_WriteStats();
+    //EEPROM_WriteStats();
     sum->SerialWrite("MINUTE");
 }
 
@@ -106,7 +111,7 @@ void Storage::Hour()
 
     if (sum == NULL)
     {
-        Serial.println("Unabled to find any minute data");
+        Serial.println(F("Unabled to find any minute data"));
         return;
     }
 
@@ -120,7 +125,7 @@ void Storage::Day()
 
     if (sum == NULL)
     {
-        Serial.println("Unabled to find any hours data");
+        Serial.println(F("Unabled to find any hours data"));
         return;
     }
 
@@ -132,9 +137,9 @@ void Storage::EEPROM_Init()
 {
   EEPROM.begin(EEPROM_SIZE);
 
-  Serial.print("EEPROM_Init (");
+  Serial.print(F("EEPROM_Init ("));
   Serial.print(EEPROM_SIZE);
-  Serial.println(" bytes storage size)");
+  Serial.println(F(" bytes storage size)"));
   
   bool reset = false;
 
@@ -146,10 +151,10 @@ void Storage::EEPROM_Init()
     EEPROM.write(1, 0xef);
     EEPROM.commit();
 
-    Serial.println("EEPROM BOM Written");
+    Serial.println(F("EEPROM BOM Written"));
   }
   else
-    Serial.println("EEPROM BOM Found");
+    Serial.println(F("EEPROM BOM Found"));
 }
 
 void Storage::EEPROM_Clear()
@@ -157,7 +162,7 @@ void Storage::EEPROM_Clear()
     for (int i = 0 ; i < 100 ; i++) 
         EEPROM.write(i, 0);
 
-    for (int i=0; i<60 + HOURS_STORED + DAYS_STORED; i++)
+    for (int i=0; i<HOURS_STORED + DAYS_STORED; i++)
         EEPROM.write(i+100, 0xff);
 }
 
@@ -208,7 +213,7 @@ void Storage::EEPROM_WriteStats()
 {
     uint32_t offset = 100;
 
-    offset = EEPROM_WriteSection(_minutes, 60, offset, "EEPROM_WriteStats MINUTE");
+    //offset = EEPROM_WriteSection(_minutes, 60, offset, "EEPROM_WriteStats MINUTE");
     offset = EEPROM_WriteSection(_hours, HOURS_STORED, offset, "EEPROM_WriteStats HOUR");
     offset = EEPROM_WriteSection(_days, DAYS_STORED, offset, "EEPROM_WriteStats DAY");
 
@@ -219,7 +224,7 @@ void Storage::EEPROM_ReadStats()
 {
     uint32_t offset = 100;
 
-    offset = EEPROM_ReadSection(_minutes, 60, offset, "EEPROM_ReadStats MINUTE");
+    //offset = EEPROM_ReadSection(_minutes, 60, offset, "EEPROM_ReadStats MINUTE");
     offset = EEPROM_ReadSection(_hours, HOURS_STORED, offset, "EEPROM_ReadStats HOUR");
     offset = EEPROM_ReadSection(_days, DAYS_STORED, offset, "EEPROM_ReadStats DAY");
 }

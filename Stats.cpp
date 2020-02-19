@@ -5,7 +5,7 @@ Stats::Stats(Tiny_SH1106 *lcd)
   _lcd = lcd;
 
   _AHT10 = new MyAHT10();
-  if (!_AHT10->begin(eAHT10Address_default))
+  if (!_AHT10->begin(I2C_AHT10_ADDRESS))
   {
     Serial.println(F("An error occurred initializing AHT10"));
     return;
@@ -13,7 +13,7 @@ Stats::Stats(Tiny_SH1106 *lcd)
 
   _bmpSensor = new My_BMP280(&Wire);
 
-  if (!_bmpSensor->begin(0x76)) {
+  if (!_bmpSensor->begin(I2C_BMP280_ADDRESS)) {
     Serial.println(F("An error occurred initializing BMP280"));
     while (1);
   }

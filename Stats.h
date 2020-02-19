@@ -9,6 +9,8 @@
 #include "Storage.h"
 #include "LCDFont.h"
 
+#include "Hardware.h"
+
 static const unsigned char PROGMEM degreeIcon[] = {
   B00110000,
   B01001000,

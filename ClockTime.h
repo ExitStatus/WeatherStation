@@ -11,13 +11,14 @@
 #include <RtcDS3231.h>
 #include "LCDFont.h"
 
+#include "Hardware.h"
+
 class ClockTime
 {
   private:
     Interval *_timer;
     Tiny_SH1106 *_lcd;
     RtcDS3231<TwoWire> *_rtc;
-    uint32_t _now = 1581162788;
     bool _clockDots = false;
     int _mode = 0;
 

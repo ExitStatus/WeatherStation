@@ -2,7 +2,9 @@
 #define Storage_h
 
 #include <EEPROM.h>
+
 #include "SensorData.h"
+#include "CardLogger.h"
 
 #define MINUTES_STORED  60
 #define DAYS_STORED  96
@@ -17,6 +19,7 @@ class Storage
     SensorData **_minutes;
     SensorData **_hours;
     SensorData **_days;
+    CardLogger *_logger;
 
     SensorData** Allocate(int size);
     void Deallocate(SensorData** allocData, int size);

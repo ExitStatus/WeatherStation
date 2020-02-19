@@ -38,13 +38,9 @@ However, SH1106 driver don't provide several functions such as scroll commands.
   #define WIRE_WRITE Wire.send
 #endif
 
-#ifdef __SAM3X8E__
- typedef volatile RwReg PortReg;
- typedef uint32_t PortMask;
-#else
+
   typedef volatile uint8_t PortReg;
   typedef uint8_t PortMask;
-#endif
 
 #include <Adafruit_GFX.h>
 

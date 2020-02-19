@@ -6,14 +6,7 @@
 #include "Stats.h"
 #include "ClockTime.h"
 #include "Button.h"
-
-#define PIN_SDA     25
-#define PIN_SCL     26
-#define PIN_LEFT    12
-#define PIN_MIDDLE  14
-#define PIN_RIGHT   27
-
-#define I2C_SPEED   1000000
+#include "Hardware.h"
 
 #define OLED_RESET 4
 Tiny_SH1106 lcd(OLED_RESET);
@@ -37,8 +30,8 @@ void setup()
   Wire.setClock(I2C_SPEED);
 
   stats = new Stats(&lcd);
-  
-  lcd.begin(SH1106_SWITCHCAPVCC, 0x3C);
+
+  lcd.begin(SH1106_SWITCHCAPVCC, I2C_OLED_ADDRESS);
   lcd.clearDisplay();
   lcd.display();
 
@@ -83,7 +76,7 @@ void NextMode()
 void PrevMode()
 {
   if (mode == 0)
-    mode = 1;
+    mode = 4;
   else
     mode--;
   
