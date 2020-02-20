@@ -57,11 +57,9 @@ void Stats::SetMode(int mode)
 {
   _mode = mode;
   _timer->Now();
-
-  Render();
 }
 
-void Stats::Render()
+void Stats::Render(RtcDateTime now)
 {
   if (!_timer->Ready())
       return;
@@ -104,7 +102,7 @@ void Stats::Render()
   _data.Second((int)temp, (int)humid, (int)pressure);
 
   if (_minuteTimer->Ready())
-    _data.Minute();
+    _data.Minute(now);
 
   if (_hourTimer->Ready())
     _data.Hour();

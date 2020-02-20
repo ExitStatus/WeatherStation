@@ -91,7 +91,7 @@ void Storage::Second(int temperature, int humidity, int pressure)
     _seconds[11] = new SensorData(temperature, humidity, pressure);
 }
 
-void Storage::Minute()
+void Storage::Minute(RtcDateTime now)
 {
     SensorData *sum = Cascade(_seconds, 12, _minutes, 60, 12);
 

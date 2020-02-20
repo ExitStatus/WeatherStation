@@ -29,3 +29,22 @@ CardLogger::CardLogger()
     _cardSize = SD.cardSize() / (1024 * 1024);
     Serial.printf("SD Card Size: %lluMB\n", _cardSize);
 }
+
+void CardLogger::Record(RtcDateTime dateStamp, float temperature, float humidity, float pressure)
+{
+    char *filename = new char[32];
+    sprintf(filename, "%d.csv", dateStamp.Year());
+    File dataFile = SD.open(filename, FILE_WRITE);
+
+    if (dataFile)
+    {
+        dataFile.printf("%d-%d-%dT%d:%d:%d,%f,%f,%f\r\n", 
+            dateStamp.Year(), dateStamp.Month(), dateStamp.Day(), 
+            dateStamp.Hour(), dateStamp.Minute(), dateStamp.Second(),
+            temperature, humidity, pressure);
+
+        dataFile.close();
+    }
+
+    delete filename;
+}

@@ -26,7 +26,7 @@ class ClockTime
     ClockTime(Tiny_SH1106 *lcd);
     ~ClockTime();
 
-    void Render();
+    RtcDateTime Render();
     void SetMode(int mode);
 };
 

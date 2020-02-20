@@ -104,7 +104,7 @@ class Stats
     Stats(Tiny_SH1106 *lcd);
     ~Stats();
     void SetMode(int mode);
-    void Render();
+    void Render(RtcDateTime now);
 };
 
 #endif

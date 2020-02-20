@@ -3,6 +3,7 @@
 
 #include <SPI.h>
 #include <SD.h>
+#include <RtcDS3231.h>
 
 #include "Hardware.h"
 
@@ -15,6 +16,8 @@ class CardLogger
 
     public: 
         CardLogger();
+
+        void Record(RtcDateTime dateStamp, float temperature, float humidity, float pressure);
 };
 
 #endif

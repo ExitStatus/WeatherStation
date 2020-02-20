@@ -49,11 +49,10 @@ void ClockTime::SetMode(int mode)
   Render();
 }
 
-void ClockTime::Render()
+RtcDateTime ClockTime::Render()
 {
-  
   if (_mode > 1 || !_timer->Ready() || !_rtc->IsDateTimeValid())
-      return;
+      return RtcDateTime(0);
 
   RtcDateTime now = _rtc->GetDateTime();
   _lcd->fillRect(0,0, 127,38, BLACK);
@@ -120,4 +119,6 @@ void ClockTime::Render()
   delete buffer2;
 
   _lcd->display();
+
+  return now;
 }
