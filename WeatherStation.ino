@@ -43,21 +43,28 @@ void setup()
 
 void loop() 
 {
-  if (rightButton->Clicked())
+  if (rightButton->Clicked() == BUTTON_CLICKED)
   {
     Serial.println("Right button click");
     NextMode();
   }
 
-  if (leftButton->Clicked())
+  if (leftButton->Clicked() == BUTTON_CLICKED)
   {
     Serial.println("Left button click");
     PrevMode();
   }
 
-  if (middleButton->Clicked())
+  uint8_t middle = middleButton->Clicked();
+
+  if (middle == BUTTON_CLICKED)
   {
     Serial.println("Middle button click");
+  }
+
+  if (middle == BUTTON_HELD)
+  {
+    Serial.println("Middle button held");
   }
 
   clockTime->Render();

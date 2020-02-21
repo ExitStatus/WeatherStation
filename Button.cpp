@@ -7,30 +7,41 @@ Button::Button(uint8_t pin)
     _currentState = HIGH;
 }
 
-bool Button::StateChanged()
+
+uint8_t Button::Clicked()
 {
-    uint8_t buttonState = digitalRead(_pin);
-    if (buttonState != _currentState)
+    int newState = digitalRead(_pin);
+    
+    if (newState == HIGH && _currentState == HIGH) 
+        return BUTTON_NONE;
+
+    if (newState == LOW && _currentState == HIGH)
     {
-        _currentState = buttonState;
-        return true;
+        _downtime = millis();
+        _currentState = LOW;
+
+        return BUTTON_NONE;
     }
 
-    return false;
-}
+    if (newState == HIGH && _currentState == LOW)
+    {
+        _currentState = HIGH;
 
-bool Button::Pressed()
-{
-    if (_currentState == LOW)
-        return true;
-    else
-        return false;
-}
+        if (_downtime == 0)
+            return BUTTON_NONE;
+        
+        if (millis() - _downtime < 10)
+            return BUTTON_BOUNCED;
 
-bool Button::Clicked()
-{
-    if (StateChanged() && !Pressed())
-        return true;
-    else
-        return false;
+        if (millis() - _downtime < 1000)
+            return BUTTON_CLICKED;
+    }
+
+    if (_downtime > 0 && (millis() - _downtime > 4000))
+    {
+        _downtime = 0;
+        return BUTTON_HELD;
+    }
+
+    return BUTTON_NONE;
 }
