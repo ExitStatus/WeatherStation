@@ -23,6 +23,6 @@
 #define PIN_RIGHT   27
 
 // Which ESP32 pin is the SDCARD Module SPI CS connected to
-#define SPI_CS_SDCARD   5
+#define SPI_CS_SDCARD   17
 
 #endif

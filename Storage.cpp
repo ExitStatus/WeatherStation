@@ -11,7 +11,9 @@ Storage::Storage()
     _logger = new CardLogger();
 
     EEPROM_Init();
-    EEPROM_ReadStats();
+
+    _logger->ReadSensorData(0, _hours, HOURS_STORED);
+    _logger->ReadSensorData(1, _days, DAYS_STORED);
 }
 
 Storage::~Storage()
@@ -91,7 +93,7 @@ void Storage::Second(int temperature, int humidity, int pressure)
     _seconds[11] = new SensorData(temperature, humidity, pressure);
 }
 
-void Storage::Minute(RtcDateTime now)
+void Storage::Minute(ClockTime *clockTime, float temperature, float humidity, float pressure)
 {
     SensorData *sum = Cascade(_seconds, 12, _minutes, 60, 12);
 
@@ -101,7 +103,7 @@ void Storage::Minute(RtcDateTime now)
         return;
     }
 
-    //EEPROM_WriteStats();
+    _logger->Record(clockTime, temperature, humidity, pressure);
     sum->SerialWrite("MINUTE");
 }
 
@@ -115,7 +117,7 @@ void Storage::Hour()
         return;
     }
 
-    EEPROM_WriteStats();
+    _logger->WriteSensorData(0, _hours, HOURS_STORED);
     sum->SerialWrite("HOUR");
 }
 
@@ -129,7 +131,7 @@ void Storage::Day()
         return;
     }
 
-    EEPROM_WriteStats();
+    _logger->WriteSensorData(1, _days, DAYS_STORED);
     sum->SerialWrite("DAY");
 }
 
@@ -161,70 +163,4 @@ void Storage::EEPROM_Clear()
 {
     for (int i = 0 ; i < 100 ; i++) 
         EEPROM.write(i, 0);
-
-    for (int i=0; i<HOURS_STORED + DAYS_STORED; i++)
-        EEPROM.write(i+100, 0xff);
-}
-
-int Storage::EEPROM_WriteSection(SensorData **data, int nItems, int offset, char *prefix)
-{
-    for (int i=0; i<nItems; i++)
-    {
-        if (data[i] == NULL)
-        {
-            EEPROM.write(offset, 0xff);
-            offset++;
-        }
-        else
-            offset += data[i]->EEPROM_Write(offset);
-    }
-
-    return offset;
-}
-
-int Storage::EEPROM_ReadSection(SensorData **data, int nItems, int offset, char *prefix)
-{
-    int z = 0;
-
-    for (int i=0; i<nItems; i++)
-    {
-        if (EEPROM.read(offset) == 0xff)
-        {
-            data[i] = NULL;
-            offset++;
-        }
-        else
-        {
-            SensorData *itm = new SensorData(0,0,0);
-            offset += itm->EEPROM_Read(offset);
-            data[i] = itm;
-            z++;
-        }       
-    }
-
-    Serial.print(prefix);
-    Serial.print(" loaded ");
-    Serial.println(z);
-
-    return offset;
-}
-
-void Storage::EEPROM_WriteStats()
-{
-    uint32_t offset = 100;
-
-    //offset = EEPROM_WriteSection(_minutes, 60, offset, "EEPROM_WriteStats MINUTE");
-    offset = EEPROM_WriteSection(_hours, HOURS_STORED, offset, "EEPROM_WriteStats HOUR");
-    offset = EEPROM_WriteSection(_days, DAYS_STORED, offset, "EEPROM_WriteStats DAY");
-
-    EEPROM.commit();
-}
-
-void Storage::EEPROM_ReadStats()
-{
-    uint32_t offset = 100;
-
-    //offset = EEPROM_ReadSection(_minutes, 60, offset, "EEPROM_ReadStats MINUTE");
-    offset = EEPROM_ReadSection(_hours, HOURS_STORED, offset, "EEPROM_ReadStats HOUR");
-    offset = EEPROM_ReadSection(_days, DAYS_STORED, offset, "EEPROM_ReadStats DAY");
 }

@@ -59,7 +59,7 @@ void Stats::SetMode(int mode)
   _timer->Now();
 }
 
-void Stats::Render(RtcDateTime now)
+void Stats::Render(ClockTime *clockTime)
 {
   if (!_timer->Ready())
       return;
@@ -102,7 +102,7 @@ void Stats::Render(RtcDateTime now)
   _data.Second((int)temp, (int)humid, (int)pressure);
 
   if (_minuteTimer->Ready())
-    _data.Minute(now);
+    _data.Minute(clockTime, temp, humid, pressure);
 
   if (_hourTimer->Ready())
     _data.Hour();
@@ -185,7 +185,7 @@ void Stats::RenderStyle2(float temp, float humid, float dew, float pressure)
   char *buffer = new char[16];
   sprintf(buffer, "%0.2f", temp);
   _lcd->print(buffer);
-  delete buffer;
+  delete[] buffer;
 
   _lcd->setFont();
   _lcd->setCursor(64 - ((18 * 6)/2) ,25);
@@ -203,7 +203,7 @@ void Stats::RenderStyle3(float temp, float humid, float dew, float pressure)
   char *buffer = new char[16];
   sprintf(buffer, "%0.2f", humid);
   _lcd->print(buffer);
-  delete buffer;
+  delete[] buffer;
 
   _lcd->setFont();
   _lcd->setCursor(64 - ((16 * 6)/2) ,25);
@@ -221,7 +221,7 @@ void Stats::RenderStyle4(float temp, float humid, float dew, float pressure)
   char *buffer = new char[16];
   sprintf(buffer, "%0.2f%", pressure);
   _lcd->print(buffer);
-  delete buffer;
+  delete[] buffer;
 
   _lcd->setFont();
   _lcd->setCursor(64 - ((18 * 6)/2) ,25);

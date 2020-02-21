@@ -37,7 +37,7 @@ class Storage
     ~Storage();
 
     void Second(int temperature, int humidity, int pressure);
-    void Minute(RtcDateTime now);
+    void Minute(ClockTime *clockTime, float temperature, float humidity, float pressure);
     void Hour();
     void Day();
 };

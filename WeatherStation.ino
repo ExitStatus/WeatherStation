@@ -60,8 +60,8 @@ void loop()
     Serial.println("Middle button click");
   }
 
-  RtcDateTime now = clockTime->Render();
-  stats->Render(now);
+  clockTime->Render();
+  stats->Render(clockTime);
 }
 
 void NextMode()

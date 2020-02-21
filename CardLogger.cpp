@@ -30,21 +30,117 @@ CardLogger::CardLogger()
     Serial.printf("SD Card Size: %lluMB\n", _cardSize);
 }
 
-void CardLogger::Record(RtcDateTime dateStamp, float temperature, float humidity, float pressure)
+void CardLogger::Record(ClockTime *clockTime, float temperature, float humidity, float pressure)
 {
+    char *iso = new char[64];
+
+    clockTime->GetIso8601(iso);
+    if (iso == NULL)
+    {
+        Serial.println(F("Failed to get ISO8601 time - No logging available"));
+        return;
+    }
+
+    char *year = new char[5];
+    memcpy(year, iso, 4);
+    year[4] = '\0';
+
     char *filename = new char[32];
-    sprintf(filename, "%d.csv", dateStamp.Year());
-    File dataFile = SD.open(filename, FILE_WRITE);
+    sprintf(filename, "/%s.csv", year);
+    delete[] year;
+
+    Serial.println(filename);
+
+    File dataFile = SD.open(filename, FILE_APPEND);
 
     if (dataFile)
     {
-        dataFile.printf("%d-%d-%dT%d:%d:%d,%f,%f,%f\r\n", 
-            dateStamp.Year(), dateStamp.Month(), dateStamp.Day(), 
-            dateStamp.Hour(), dateStamp.Minute(), dateStamp.Second(),
-            temperature, humidity, pressure);
+        char *buffer = new char[64];
 
+        sprintf(buffer, "%s,%f,%f,%f\0", iso, temperature, humidity, pressure);
+
+        dataFile.println(buffer);
         dataFile.close();
+
+        Serial.print(F("Written "));
+        Serial.print(buffer);
+        Serial.print(F(" to "));
+        Serial.println(filename);
+
+        delete[] buffer;
+    }
+    else
+    {
+        Serial.println("Failed to open logging file");
+    }
+    
+
+    delete[] filename;
+    delete[] iso;
+}
+
+void CardLogger::WriteSensorData(uint8_t type, SensorData **data, int nItems)
+{
+    char *filename = "/hour.bin";
+
+    if (type == 1)
+        filename = "/day.bin";
+
+    Serial.print("Writing stats to ");
+    Serial.println(filename);
+
+    File dataFile = SD.open(filename, FILE_WRITE);
+    if (!dataFile)
+    {
+        Serial.println(F("Failed to open file to write stats"));
+        return;
     }
 
-    delete filename;
+    for (int i=0; i<nItems; i++)
+    {
+        if (data[i] == NULL)
+            dataFile.write(0x00);
+        else
+        {
+            dataFile.write(0xff);
+            dataFile.write((uint8_t*)data[i], sizeof(SensorData));
+            data[i]->SerialWrite("WriteSensorData");
+            
+        }
+    }
+
+    dataFile.close();
+}
+
+void CardLogger::ReadSensorData(uint8_t type, SensorData **data, int nItems)
+{
+    char *filename = "/hour.bin";
+
+    if (type == 1)
+        filename = "/day.bin";
+
+    Serial.print("Reading stats from ");
+    Serial.println(filename);
+
+    File dataFile = SD.open(filename, FILE_READ);
+    if (!dataFile)
+    {
+        Serial.println(F("Failed to open file to read stats"));
+        return;
+    }
+
+    for (int i=0; i<nItems; i++)
+    {
+        if (dataFile.read() == 0x00)
+            data[i] = NULL;
+        else
+        {
+            SensorData *itm = new SensorData(0,0,0);
+            dataFile.read((uint8_t*)itm, sizeof(SensorData));
+            data[i] = itm;
+            itm->SerialWrite("ReadSensorData");
+        }
+    }
+
+    dataFile.close();
 }

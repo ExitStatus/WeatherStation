@@ -10,6 +10,7 @@
 #include "LCDFont.h"
 
 #include "Hardware.h"
+#include "ClockTime.h"
 
 static const unsigned char PROGMEM degreeIcon[] = {
   B00110000,
@@ -104,7 +105,7 @@ class Stats
     Stats(Tiny_SH1106 *lcd);
     ~Stats();
     void SetMode(int mode);
-    void Render(RtcDateTime now);
+    void Render(ClockTime *clockTime);
 };
 
 #endif

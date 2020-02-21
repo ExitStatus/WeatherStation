@@ -26,8 +26,10 @@ class ClockTime
     ClockTime(Tiny_SH1106 *lcd);
     ~ClockTime();
 
-    RtcDateTime Render();
+    void Render();
     void SetMode(int mode);
+
+    void GetIso8601(char* buffer);
 };
 
 #endif

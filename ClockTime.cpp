@@ -49,10 +49,10 @@ void ClockTime::SetMode(int mode)
   Render();
 }
 
-RtcDateTime ClockTime::Render()
+void ClockTime::Render()
 {
   if (_mode > 1 || !_timer->Ready() || !_rtc->IsDateTimeValid())
-      return RtcDateTime(0);
+      return;
 
   RtcDateTime now = _rtc->GetDateTime();
   _lcd->fillRect(0,0, 127,38, BLACK);
@@ -72,7 +72,7 @@ RtcDateTime ClockTime::Render()
 
   _lcd->print(buffer);
 
-  delete buffer;
+  delete[] buffer;
   
   _clockDots = !_clockDots;  
   
@@ -116,9 +116,16 @@ RtcDateTime ClockTime::Render()
 
   _lcd->setCursor(64 - ((strlen(buffer2) * 6) /2),25);
   _lcd->print(buffer2);
-  delete buffer2;
+  delete[] buffer2;
 
   _lcd->display();
+}
 
-  return now;
+void ClockTime::GetIso8601(char* buffer)
+{
+  RtcDateTime dateStamp = _rtc->GetDateTime();
+  
+  sprintf(buffer, "%04d-%02d-%02d %02d:%02d:%02d", 
+    dateStamp.Year(), dateStamp.Month(), dateStamp.Day(), 
+    dateStamp.Hour(), dateStamp.Minute(), dateStamp.Second());
 }
