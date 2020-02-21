@@ -101,6 +101,9 @@ class Stats
     void RenderStyle4(float temp, float humid, float dew, float pressure);
 
     void printTemp(int x, int y, char *prefix, int temp);
+    void printTemp(int x, int y, char *prefix, float temp);
+    void printHumidity(int x, int y, char *prefix, float temp);
+    void printPressure(int x, int y, char *prefix, float temp);
   public: 
     Stats(Tiny_SH1106 *lcd);
     ~Stats();

@@ -49,8 +49,6 @@ void CardLogger::Record(ClockTime *clockTime, float temperature, float humidity,
     sprintf(filename, "/%s.csv", year);
     delete[] year;
 
-    Serial.println(filename);
-
     File dataFile = SD.open(filename, FILE_APPEND);
 
     if (dataFile)
@@ -62,16 +60,11 @@ void CardLogger::Record(ClockTime *clockTime, float temperature, float humidity,
         dataFile.println(buffer);
         dataFile.close();
 
-        Serial.print(F("Written "));
-        Serial.print(buffer);
-        Serial.print(F(" to "));
-        Serial.println(filename);
-
         delete[] buffer;
     }
     else
     {
-        Serial.println("Failed to open logging file");
+        Serial.println(F("Failed to open logging file"));
     }
     
 
@@ -104,8 +97,6 @@ void CardLogger::WriteSensorData(uint8_t type, SensorData **data, int nItems)
         {
             dataFile.write(0xff);
             dataFile.write((uint8_t*)data[i], sizeof(SensorData));
-            data[i]->SerialWrite("WriteSensorData");
-            
         }
     }
 
@@ -138,7 +129,6 @@ void CardLogger::ReadSensorData(uint8_t type, SensorData **data, int nItems)
             SensorData *itm = new SensorData(0,0,0);
             dataFile.read((uint8_t*)itm, sizeof(SensorData));
             data[i] = itm;
-            itm->SerialWrite("ReadSensorData");
         }
     }
 

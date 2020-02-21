@@ -1,5 +1,14 @@
 #include "Storage.h"
 
+#define HAS_MAXMIN_OFFSET       80
+#define MAX_TEMPERATURE_OFFSET  81
+#define MIN_TEMPERATURE_OFFSET  82
+
+#define MAX_HUMIDITY_OFFSET     83
+#define MIN_HUMIDITY_OFFSET     84
+
+#define MAX_PRESSURE_OFFSET     85
+#define MIN_PRESSURE_OFFSET     87
 
 Storage::Storage()
 {
@@ -104,7 +113,6 @@ void Storage::Minute(ClockTime *clockTime, float temperature, float humidity, fl
     }
 
     _logger->Record(clockTime, temperature, humidity, pressure);
-    sum->SerialWrite("MINUTE");
 }
 
 void Storage::Hour()
@@ -163,4 +171,126 @@ void Storage::EEPROM_Clear()
 {
     for (int i = 0 ; i < 100 ; i++) 
         EEPROM.write(i, 0);
+}
+
+void Storage::SetMaxMin(float temperature, float humidity, float pressure)
+{
+    if (!_hasMaxMin)
+    {
+        if (EEPROM.read(HAS_MAXMIN_OFFSET) == 0)
+        {
+            _maxTemperature = _minTemperature = temperature;
+            _maxHumidity = _minHumidity = humidity;
+            _maxPressure = _minPressure = pressure;
+
+            EEPROM.write(HAS_MAXMIN_OFFSET, 0xff);
+            EEPROM.put(HAS_MAXMIN_OFFSET + 1, _maxTemperature);
+            EEPROM.put(HAS_MAXMIN_OFFSET + 1 + sizeof(float), _minTemperature);
+            EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 2), _maxHumidity);
+            EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 3), _minHumidity);
+            EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 4), _maxPressure);
+            EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 5), _minPressure);
+        }
+        else
+        {
+            EEPROM.get(HAS_MAXMIN_OFFSET + 1, _maxTemperature);
+            EEPROM.get(HAS_MAXMIN_OFFSET + 1 + sizeof(float), _minTemperature);
+            EEPROM.get(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 2), _maxHumidity);
+            EEPROM.get(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 3), _minHumidity);
+            EEPROM.get(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 4), _maxPressure);
+            EEPROM.get(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 5), _minPressure);
+
+            Serial.print(F("EEPROM: Temperature: "));
+            Serial.print(_maxTemperature);
+            Serial.print(" / ");
+            Serial.println(_minTemperature);
+
+            Serial.print(F("EEPROM: Humidity: "));
+            Serial.print(_maxHumidity);
+            Serial.print(" / ");
+            Serial.println(_minHumidity);
+
+            Serial.print(F("EEPROM: Pressure: "));
+            Serial.print(_maxPressure);
+            Serial.print(" / ");
+            Serial.println(_minPressure);
+        }
+
+        EEPROM.commit();
+        _hasMaxMin = true;
+
+        return;
+    }
+
+    if (temperature > _maxTemperature)
+    {
+        _maxTemperature = temperature;
+        EEPROM.put(HAS_MAXMIN_OFFSET + 1, _maxTemperature);
+        EEPROM.commit();
+    }
+
+    if (temperature < _minTemperature)
+    {
+        _minTemperature = temperature;
+        EEPROM.put(HAS_MAXMIN_OFFSET + 1 + sizeof(float), _minTemperature);
+        EEPROM.commit();
+    }
+
+    if (humidity > _maxHumidity)
+    {
+        _maxHumidity = humidity;
+        EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 2), _maxHumidity);
+        EEPROM.commit();
+    }
+
+    if (humidity < _minHumidity)
+    {
+        _minHumidity = humidity;
+        EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 3), _minHumidity);
+        EEPROM.commit();
+    }
+
+    if (pressure > _maxPressure)
+    {
+        _maxPressure = pressure;
+        EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 4), _maxPressure);
+        EEPROM.commit();
+    }
+
+    if (pressure < _minPressure)
+    {
+        _minPressure = pressure;
+        EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 5), _minPressure);
+        EEPROM.commit();
+    }
+}
+
+float Storage::GetMaxTemperature()
+{
+    return _maxTemperature;
+}
+
+float Storage::GetMaxHumidity()
+{
+    return _maxHumidity;
+}
+
+float Storage::GetMaxPressure()
+{
+    return _maxPressure;
+}
+
+float Storage::GetMinTemperature()
+{
+    return _minTemperature;
+}
+
+float Storage::GetMinHumidity()
+{
+    return _minHumidity;
+}
+
+float Storage::GetMinPressure()
+{
+    return _minPressure;
 }

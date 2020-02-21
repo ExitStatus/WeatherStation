@@ -88,6 +88,8 @@ void Stats::Render(ClockTime *clockTime)
     return;
   }
 
+  _data.SetMaxMin(temp, humid, pressure);
+
   switch (_mode)
   {
     case 0: RenderStyle0(temp, humid, dew, pressure); break;
@@ -115,13 +117,54 @@ void Stats::printTemp(int x, int y, char *prefix, int temp)
 {
   _lcd->setCursor(x,y);
 
-  char *buffer = new char[6];
+  char *buffer = new char[6 + strlen(prefix)];
   sprintf(buffer, "%s%d\0", prefix, temp);
 
   _lcd->print(buffer);
   _lcd->print(F(" C"));
 
   _lcd->drawBitmap(x + (strlen(buffer) * 6), y,  degreeIcon, 8, 8, WHITE);
+
+  delete[] buffer;
+}
+
+void Stats::printTemp(int x, int y, char *prefix, float temp)
+{
+  _lcd->setCursor(x,y);
+
+  char *buffer = new char[9+strlen(prefix)];
+  sprintf(buffer, "%s%.2f\0", prefix, temp);
+
+  _lcd->print(buffer);
+  _lcd->print(F(" C"));
+
+  _lcd->drawBitmap(x + (strlen(buffer) * 6), y,  degreeIcon, 8, 8, WHITE);
+
+  delete[] buffer;
+}
+
+void Stats::printHumidity(int x, int y, char *prefix, float temp)
+{
+  _lcd->setCursor(x,y);
+
+  char *buffer = new char[9+strlen(prefix)];
+  sprintf(buffer, "%s%.2f\0", prefix, temp);
+
+  _lcd->print(buffer);
+  _lcd->print(F("%"));
+  delete[] buffer;
+}
+    
+void Stats::printPressure(int x, int y, char *prefix, float temp)
+{
+  _lcd->setCursor(x,y);
+
+  char *buffer = new char[9+strlen(prefix)];
+  sprintf(buffer, "%s%.2f\0", prefix, temp);
+
+  _lcd->print(buffer);
+  _lcd->print(F("mb"));
+  delete[] buffer;
 }
 
 void Stats::RenderStyle0(float temp, float humid, float dew, float pressure)
@@ -131,9 +174,9 @@ void Stats::RenderStyle0(float temp, float humid, float dew, float pressure)
   _lcd->drawBitmap(92, 38,  pressureIcon, 16, 16, 1);
 
   char *buffer = new char[6];
-  sprintf(buffer, "%d C\0", (int)temp);
+  sprintf(buffer, "%d C\0", (int)round(temp));
     
-  if ((int)temp < 10)
+  if ((int)round(temp) < 10)
   {
     int x = 27 - ((3 * 6)/2);
     _lcd->setCursor(x,57);
@@ -148,32 +191,32 @@ void Stats::RenderStyle0(float temp, float humid, float dew, float pressure)
     _lcd->drawBitmap(x+12,57,  degreeIcon, 8, 8, WHITE);
   }
 
-  sprintf(buffer, "%d%%\0", (int)humid);
+  sprintf(buffer, "%d%%\0", (int)round(humid));
   _lcd->setCursor(64 - ((strlen(buffer) * 6) / 2), 57);
   _lcd->print(buffer); 
 
-  sprintf(buffer, "%d\0", (int)pressure);
+  sprintf(buffer, "%d\0", (int)round(pressure));
   _lcd->setCursor(100 - ((strlen(buffer) * 6) / 2), 57);
   _lcd->print(buffer); 
 
-  free(buffer);
+  delete[] buffer;
 }
 
 void Stats::RenderStyle1(float temp, float humid, float dew, float pressure)
 {
   _lcd->drawFastHLine(0, 38, 128, WHITE);
 
-  printTemp(0, 44, " Temp:", (int)temp);
-  printTemp(66, 44, "DewP:", (int)dew);
+  printTemp(0, 44, " Temp:", (int)round(temp));
+  printTemp(66, 44, "DewP:", (int)round(dew));
   
   _lcd->setCursor(0,56);
   _lcd->print(F("Humid:"));
-  _lcd->print((int)humid);
+  _lcd->print((int)round(humid));
   _lcd->print(F("%"));
 
   _lcd->setCursor(66,56);
   _lcd->print(F("Mbar:"));
-  _lcd->print((int)pressure);
+  _lcd->print((int)round(pressure));
 }
 
 void Stats::RenderStyle2(float temp, float humid, float dew, float pressure)
@@ -192,6 +235,9 @@ void Stats::RenderStyle2(float temp, float humid, float dew, float pressure)
   _lcd->print("Degrees Centigrade");
 
   _lcd->drawFastHLine(0, 38, 128, WHITE);
+
+  printTemp(0, 42, "Max:", _data.GetMaxTemperature());
+  printTemp(0, 54, "Min:", _data.GetMinTemperature());
 }
 
 void Stats::RenderStyle3(float temp, float humid, float dew, float pressure)
@@ -210,6 +256,9 @@ void Stats::RenderStyle3(float temp, float humid, float dew, float pressure)
   _lcd->print("Percent Humidity");
 
   _lcd->drawFastHLine(0, 38, 128, WHITE);
+
+  printHumidity(0, 42, "Max:", _data.GetMaxHumidity());
+  printHumidity(0, 54, "Min:", _data.GetMinHumidity());
 }
 
 void Stats::RenderStyle4(float temp, float humid, float dew, float pressure)
@@ -228,4 +277,7 @@ void Stats::RenderStyle4(float temp, float humid, float dew, float pressure)
   _lcd->print("Millibars Pressure");
 
   _lcd->drawFastHLine(0, 38, 128, WHITE);
+
+  printPressure(0, 42, "Max:", _data.GetMaxPressure());
+  printPressure(0, 54, "Min:", _data.GetMinPressure());
 }
