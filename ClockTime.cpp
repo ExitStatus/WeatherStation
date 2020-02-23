@@ -46,10 +46,10 @@ void ClockTime::SetMode(int mode)
   _mode = mode;
   _timer->Now();
 
-  Render();
+  Render(false);
 }
 
-void ClockTime::Render()
+void ClockTime::Render(bool display)
 {
   if (_mode > 1 || !_timer->Ready() || !_rtc->IsDateTimeValid())
       return;
@@ -118,7 +118,8 @@ void ClockTime::Render()
   _lcd->print(buffer2);
   delete[] buffer2;
 
-  _lcd->display();
+  if (display)
+    _lcd->display();
 }
 
 void ClockTime::GetIso8601(char* buffer)

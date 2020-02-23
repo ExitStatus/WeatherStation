@@ -7,6 +7,7 @@
 #include "ClockTime.h"
 #include "Button.h"
 #include "Hardware.h"
+#include "Settings.h"
 
 #define OLED_RESET 4
 Tiny_SH1106 lcd(OLED_RESET);
@@ -64,10 +65,13 @@ void loop()
 
   if (middle == BUTTON_HELD)
   {
+    Settings *settings = new Settings(&lcd, leftButton, middleButton, rightButton);
+    settings->UpdateSettingsUI();
+    
     Serial.println("Middle button held");
   }
 
-  clockTime->Render();
+  clockTime->Render(true);
   stats->Render(clockTime);
 }
 

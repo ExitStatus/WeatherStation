@@ -26,7 +26,7 @@ class ClockTime
     ClockTime(Tiny_SH1106 *lcd);
     ~ClockTime();
 
-    void Render();
+    void Render(bool display);
     void SetMode(int mode);
 
     void GetIso8601(char* buffer);

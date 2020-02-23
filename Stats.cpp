@@ -20,8 +20,8 @@ Stats::Stats(Tiny_SH1106 *lcd)
 
   /* Default settings from datasheet. */
   _bmpSensor->setSampling(My_BMP280::MODE_NORMAL,     /* Operating Mode. */
-                  My_BMP280::SAMPLING_X2,     /* Temp. oversampling */
-                  My_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+                  My_BMP280::SAMPLING_X1,     /* Temp. oversampling */
+                  My_BMP280::SAMPLING_X4,    /* Pressure oversampling */
                   My_BMP280::FILTER_X16,      /* Filtering. */
                   My_BMP280::STANDBY_MS_500); /* Standby time. */
 
@@ -36,11 +36,6 @@ Stats::Stats(Tiny_SH1106 *lcd)
   _hourTimer->Start(3600000, false);
   _dayTimer->Start(86400000, false);
 
-/*
-  _minuteTimer->Start(15000, false);
-  _hourTimer->Start(30000, false);
-  _dayTimer->Start(60000, false);
-  */
 }
 
 Stats::~Stats()
@@ -87,6 +82,8 @@ void Stats::Render(ClockTime *clockTime)
     Serial.println(F("Failed to read from BMP280 sensor!"));
     return;
   }
+
+  pressure = _bmpSensor->seaLevelForAltitude(97, pressure);
 
   _data.SetMaxMin(temp, humid, pressure);
 
