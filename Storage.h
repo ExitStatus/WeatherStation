@@ -59,6 +59,8 @@ class Storage
     float GetMinTemperature();
     float GetMinHumidity();
     float GetMinPressure();
+
+    void ResetMaxMin(float temperature, float humidity, float pressure);
 };
 
 #endif

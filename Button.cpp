@@ -7,8 +7,7 @@ Button::Button(uint8_t pin)
     _currentState = HIGH;
 }
 
-
-uint8_t Button::Clicked()
+uint8_t Button::State()
 {
     int newState = digitalRead(_pin);
     
@@ -37,7 +36,7 @@ uint8_t Button::Clicked()
             return BUTTON_CLICKED;
     }
 
-    if (_downtime > 0 && (millis() - _downtime > 4000))
+    if (_downtime > 0 && (millis() - _downtime > 3000))
     {
         _downtime = 0;
         return BUTTON_HELD;

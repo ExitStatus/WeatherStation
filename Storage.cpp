@@ -294,3 +294,21 @@ float Storage::GetMinPressure()
 {
     return _minPressure;
 }
+
+void Storage::ResetMaxMin(float temperature, float humidity, float pressure)
+{
+    _maxTemperature = _minTemperature = temperature;
+    _maxHumidity = _minHumidity = humidity;
+    _maxPressure = _minPressure = pressure;
+
+    EEPROM.write(HAS_MAXMIN_OFFSET, 0xff);
+    EEPROM.put(HAS_MAXMIN_OFFSET + 1, _maxTemperature);
+    EEPROM.put(HAS_MAXMIN_OFFSET + 1 + sizeof(float), _minTemperature);
+    EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 2), _maxHumidity);
+    EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 3), _minHumidity);
+    EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 4), _maxPressure);
+    EEPROM.put(HAS_MAXMIN_OFFSET + 1 + (sizeof(float) * 5), _minPressure);    
+
+    EEPROM.commit();
+    _hasMaxMin = true;
+}

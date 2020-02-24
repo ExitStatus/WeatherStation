@@ -1,12 +1,23 @@
 #include "Interval.h"
 
+Interval::Interval()
+{
+    _every = 1000;
+    _last = millis();
+}
+
+Interval::Interval(uint32_t e, bool now)
+{
+    _every = e;
+    _last = millis();
+    _now = now;
+}
+
 void Interval::Start(uint32_t e, bool now)
 {
     _every = e;
-    _last = 0;      
-
-    if (now)
-        _now = true;
+    _last = millis();      
+    _now = now;
 }
 
 void Interval::Now()

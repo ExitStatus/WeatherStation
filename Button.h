@@ -17,7 +17,7 @@ class Button
     
   public: 
     Button(uint8_t pin);
-    uint8_t Clicked();
+    uint8_t State();
 };
 
 #endif

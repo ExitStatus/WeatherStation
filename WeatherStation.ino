@@ -44,19 +44,19 @@ void setup()
 
 void loop() 
 {
-  if (rightButton->Clicked() == BUTTON_CLICKED)
+  if (rightButton->State() == BUTTON_CLICKED)
   {
     Serial.println("Right button click");
     NextMode();
   }
 
-  if (leftButton->Clicked() == BUTTON_CLICKED)
+  if (leftButton->State() == BUTTON_CLICKED)
   {
     Serial.println("Left button click");
     PrevMode();
   }
 
-  uint8_t middle = middleButton->Clicked();
+  uint8_t middle = middleButton->State();
 
   if (middle == BUTTON_CLICKED)
   {
@@ -65,13 +65,18 @@ void loop()
 
   if (middle == BUTTON_HELD)
   {
-    Settings *settings = new Settings(&lcd, leftButton, middleButton, rightButton);
+    Serial.println("Middle button held");
+
+    Settings *settings = new Settings(&lcd, leftButton, middleButton, rightButton, stats, clockTime);
     settings->UpdateSettingsUI();
     
-    Serial.println("Middle button held");
+    clockTime->Render(false);
   }
-
-  clockTime->Render(true);
+  else
+  {
+    clockTime->Render(true);
+  }
+  
   stats->Render(clockTime);
 }
 

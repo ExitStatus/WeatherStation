@@ -93,6 +93,10 @@ class Stats
     My_BMP280 *_bmpSensor;
     uint8_t _mode = 0;
     Storage _data;
+    float _currentTemperature;
+    float _currentHumidity;
+    float _currentPressure;
+    float _currentDewPoint;
 
     void RenderStyle0(float temp, float humid, float dew, float pressure);
     void RenderStyle1(float temp, float humid, float dew, float pressure);
@@ -109,6 +113,8 @@ class Stats
     ~Stats();
     void SetMode(int mode);
     void Render(ClockTime *clockTime);
+    void RecordStats(ClockTime *clockTime);
+    void ResetMaxMin();
 };
 
 #endif

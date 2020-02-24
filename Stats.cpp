@@ -35,7 +35,6 @@ Stats::Stats(Tiny_SH1106 *lcd)
   _minuteTimer->Start(60000, false);
   _hourTimer->Start(3600000, false);
   _dayTimer->Start(86400000, false);
-
 }
 
 Stats::~Stats()
@@ -52,6 +51,47 @@ void Stats::SetMode(int mode)
 {
   _mode = mode;
   _timer->Now();
+}
+
+void Stats::ResetMaxMin()
+{
+  _data.ResetMaxMin(_currentTemperature, _currentHumidity, _currentPressure);
+}
+
+void Stats::RecordStats(ClockTime *clockTime)
+{
+  if (!_timer->Ready())
+      return;
+
+  _currentTemperature = _AHT10->GetTemperature();
+  _currentDewPoint = _AHT10->GetDewPoint();
+  _currentHumidity = _AHT10->GetHumidity();
+
+  if (isnan(_currentTemperature) || isnan(_currentDewPoint) || isnan(_currentHumidity)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+
+  _currentPressure = _bmpSensor->readPressure() / 100;
+  if (isnan(_currentPressure)) {
+    Serial.println(F("Failed to read from BMP280 sensor!"));
+    return;
+  }
+
+  _currentPressure = _bmpSensor->seaLevelForAltitude(97, _currentPressure);
+
+  _data.SetMaxMin(_currentTemperature, _currentHumidity, _currentPressure);
+
+  _data.Second((int)_currentTemperature, (int)_currentHumidity, (int)_currentPressure);
+
+  if (_minuteTimer->Ready())
+    _data.Minute(clockTime, _currentTemperature, _currentHumidity, _currentPressure);
+
+  if (_hourTimer->Ready())
+    _data.Hour();
+
+  if (_dayTimer->Ready())
+    _data.Day();
 }
 
 void Stats::Render(ClockTime *clockTime)

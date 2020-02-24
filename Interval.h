@@ -11,6 +11,8 @@ class Interval
     bool _now = false;
   
   public: 
+    Interval();
+    Interval(uint32_t e, bool now = false);
     void Start(uint32_t e, bool now);
     void Now();
     bool Ready();
