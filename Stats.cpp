@@ -47,6 +47,30 @@ Stats::~Stats()
   delete _bmpSensor;
 }
 
+void Stats::WaitForInit()
+{
+  int lastVal = _AHT10->GetTemperature();
+  int count = 1;
+
+  while (true)
+  {
+    int nextVal = _AHT10->GetTemperature();
+    if (nextVal > -20)
+    {
+      if (nextVal == lastVal)
+      {
+        count++;
+        if (count > 3)
+          return;
+      }
+      else
+        lastVal = nextVal;
+    }
+
+    delay(250);
+  }
+}
+
 void Stats::SetMode(int mode)
 {
   _mode = mode;

@@ -41,9 +41,9 @@ void CardLogger::Record(ClockTime *clockTime, float temperature, float humidity,
         return;
     }
 
-    char *year = new char[5];
-    memcpy(year, iso, 4);
-    year[4] = '\0';
+    char *year = new char[10];
+    memcpy(year, iso, 7);
+    year[7] = '\0';
 
     char *filename = new char[32];
     sprintf(filename, "/%s.csv", year);

@@ -115,6 +115,7 @@ class Stats
     void Render(ClockTime *clockTime);
     void RecordStats(ClockTime *clockTime);
     void ResetMaxMin();
+    void WaitForInit();
 };
 
 #endif

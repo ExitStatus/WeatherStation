@@ -36,6 +36,8 @@ void setup()
   lcd.clearDisplay();
   lcd.display();
 
+  stats->WaitForInit();
+
   clockTime = new ClockTime(&lcd);
   leftButton = new Button(PIN_LEFT);
   middleButton = new Button(PIN_MIDDLE);
